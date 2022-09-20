@@ -11,15 +11,12 @@ RUN apt-get update && apt-get install -y make gcc cmake nasm g++ binutils-x86-64
     && VERBOSE=1 make \
     && strip /ect/build/ect
 
-FROM gcr.io/distroless/base-debian11:latest AS prod
+FROM debian:bullseye-slim AS prod
+RUN apt-get update && apt-get upgrade -y
 
 COPY --from=build --chmod=755 /ect/build/ect /opt/ect
 COPY --from=build /ect/licenses /opt/licenses
 
-#COPY --from=build /lib/x86_64-linux-gnu/libpthread.so.0 /lib/x86_64-linux-gnu/libpthread.so.0
-COPY --from=build /usr/lib/x86_64-linux-gnu/libstdc++.so.6 /usr/lib/x86_64-linux-gnu/libstdc++.so.6
-#COPY --from=build /lib/x86_64-linux-gnu/libm.so.6 /lib/x86_64-linux-gnu/libm.so.6
-COPY --from=build /lib/x86_64-linux-gnu/libgcc_s.so.1 /lib/x86_64-linux-gnu/libgcc_s.so.1
-#COPY --from=build /lib/x86_64-linux-gnu/libc.so.6 /lib/x86_64-linux-gnu/libc.so.6
+ENV PATH="${PATH}:/opt"
 
-ENTRYPOINT ["/opt/ect"]
+CMD ["/opt/ect"]
